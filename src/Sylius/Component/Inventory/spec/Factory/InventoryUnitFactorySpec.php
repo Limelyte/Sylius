@@ -21,14 +21,19 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
  */
 class InventoryUnitFactorySpec extends ObjectBehavior
 {
-    function let(RepositoryInterface $repository)
+    function let()
     {
-        $this->beConstructedWith($repository);
+        $this->beConstructedWith('Foo');
     }
 
     function it_is_initializable()
     {
         $this->shouldHaveType('Sylius\Component\Inventory\Factory\InventoryUnitFactory');
+    }
+
+    function it_is_a_resource_factory()
+    {
+        $this->shouldHaveType('Sylius\Component\Resource\Factory\ResourceFactory');
     }
 
     function it_implements_Sylius_inventory_unit_factory_interface()
@@ -40,28 +45,7 @@ class InventoryUnitFactorySpec extends ObjectBehavior
     {
         $this
             ->shouldThrow('InvalidArgumentException')
-            ->duringCreate($stockable, -2)
+            ->duringCreateForStockable($stockable, -2)
         ;
-    }
-
-    function it_creates_inventory_units(
-        StockableInterface $stockable,
-        InventoryUnitInterface $inventoryUnit1,
-        InventoryUnitInterface $inventoryUnit2,
-        InventoryUnitInterface $inventoryUnit3,
-        $repository
-    ) {
-        $repository->createNew()->shouldBeCalled()->willReturn($inventoryUnit1, $inventoryUnit2, $inventoryUnit3);
-
-        $inventoryUnit1->setStockable($stockable)->shouldBeCalled();
-        $inventoryUnit1->setInventoryState(InventoryUnitInterface::STATE_BACKORDERED)->shouldBeCalled();
-
-        $inventoryUnit2->setStockable($stockable)->shouldBeCalled();
-        $inventoryUnit2->setInventoryState(InventoryUnitInterface::STATE_BACKORDERED)->shouldBeCalled();
-
-        $inventoryUnit3->setStockable($stockable)->shouldBeCalled();
-        $inventoryUnit3->setInventoryState(InventoryUnitInterface::STATE_BACKORDERED)->shouldBeCalled();
-
-        $this->create($stockable, 3, InventoryUnitInterface::STATE_BACKORDERED);
     }
 }

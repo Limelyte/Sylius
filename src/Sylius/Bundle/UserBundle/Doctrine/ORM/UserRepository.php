@@ -14,7 +14,7 @@ namespace Sylius\Bundle\UserBundle\Doctrine\ORM;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\QueryBuilder;
 use Pagerfanta\PagerfantaInterface;
-use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Bundle\ResourceBundle\Doctrine\ORM\ResourceRepository;
 use Sylius\Component\Core\Model\UserInterface;
 use Sylius\Component\User\Repository\UserRepositoryInterface;
 
@@ -22,7 +22,7 @@ use Sylius\Component\User\Repository\UserRepositoryInterface;
  * @author Saša Stamenković <umpirsky@gmail.com>
  * @author Michał Marcinkowski <michal.marcinkowski@lakion.com>
  */
-class UserRepository extends EntityRepository implements UserRepositoryInterface
+class UserRepository extends ResourceRepository implements UserRepositoryInterface
 {
     /**
      * @param array $criteria
@@ -33,10 +33,10 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
      */
     public function createFilterPaginator($criteria = array(), $sorting = array(), $deleted = false)
     {
-        $queryBuilder = parent::getCollectionQueryBuilder();
+        $queryBuilder = $this->objectRepository->createQueryBuilder('o');
 
         if ($deleted) {
-            $this->_em->getFilters()->disable('softdeleteable');
+            $this->objectManager->getFilters()->disable('softdeleteable');
         }
 
         if (isset($criteria['query'])) {
@@ -77,9 +77,9 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
      */
     public function findForDetailsPage($id)
     {
-        $this->_em->getFilters()->disable('softdeleteable');
+        $this->objectManager->getFilters()->disable('softdeleteable');
 
-        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder = $this->objectRepository->createQueryBuilder('o');
         $queryBuilder
             ->leftJoin($this->getAlias().'.customer', 'customer')
             ->addSelect('customer')
@@ -91,8 +91,7 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
             ->getQuery()
             ->getOneOrNullResult()
         ;
-
-        $this->_em->getFilters()->enable('softdeleteable');
+        $this->objectManager->getFilters()->enable('softdeleteable');
 
         return $result;
     }
@@ -135,7 +134,7 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
         $groupBy = substr($groupBy, 0, -1);
         $groupBy = str_replace(' ', ', ', $groupBy);
 
-        $queryBuilder = $this->getEntityManager()->getConnection()->createQueryBuilder();
+        $queryBuilder = $this->objectManager->getConnection()->createQueryBuilder();
 
         $queryBuilder
             ->select('DATE(u.created_at) as date', ' count(u.id) as user_total')
@@ -162,10 +161,10 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
      */
     public function findOneByEmail($email)
     {
-        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder = $this->objectRepository->createQueryBuilder('o');
 
         $queryBuilder
-            ->leftJoin($this->getAlias().'.customer', 'customer')
+            ->leftJoin('o.customer', 'customer')
             ->andWhere($queryBuilder->expr()->eq('customer.emailCanonical', ':email'))
             ->setParameter('email', $email)
         ;
@@ -184,7 +183,7 @@ class UserRepository extends EntityRepository implements UserRepositoryInterface
      */
     protected function getCollectionQueryBuilderBetweenDates(\DateTime $from, \DateTime $to)
     {
-        $queryBuilder = $this->getCollectionQueryBuilder();
+        $queryBuilder = $this->objectRepository->createQueryBuilder('o');
 
         return $queryBuilder
             ->andWhere($queryBuilder->expr()->gte('o.createdAt', ':from'))

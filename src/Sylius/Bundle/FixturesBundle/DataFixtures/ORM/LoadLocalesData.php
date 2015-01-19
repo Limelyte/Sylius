@@ -35,21 +35,22 @@ class LoadLocalesData extends DataFixture
      */
     public function load(ObjectManager $manager)
     {
-        $localeRepository = $this->getLocaleRepository();
+        $localeFactory = $this->getLocaleFactory();
+        $localeManager = $this->getLocaleManager();
 
         $locales = array_merge($this->locales, array($this->defaultLocale => true));
 
         foreach ($locales as $code => $enabled) {
-            $locale = $localeRepository->createNew();
+            $locale = $localeFactory->createNew();
             $locale->setCode($code);
             $locale->setEnabled($enabled);
 
-            $manager->persist($locale);
+            $localeManager->persist($locale);
 
             $this->setReference('Sylius.Locale.'.$code, $locale);
         }
 
-        $manager->flush();
+        $localeManager->flush();
     }
 
     /**
@@ -57,6 +58,6 @@ class LoadLocalesData extends DataFixture
      */
     public function getOrder()
     {
-        return 1;
+        return 10;
     }
 }

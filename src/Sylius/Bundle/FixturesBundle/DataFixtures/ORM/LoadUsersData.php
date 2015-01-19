@@ -32,6 +32,8 @@ class LoadUsersData extends DataFixture
         $rbacInitializer = $this->get('sylius.rbac.initializer');
         $rbacInitializer->initialize();
 
+        $userManager = $this->getUserManager();
+
         $user = $this->createUser(
             'sylius@example.com',
             'sylius',
@@ -40,8 +42,7 @@ class LoadUsersData extends DataFixture
         );
         $user->addAuthorizationRole($this->get('sylius.repository.role')->findOneBy(array('code' => 'administrator')));
 
-        $manager->persist($user);
-        $manager->flush();
+        $userManager->persist($user);
 
         $this->setReference('Sylius.User-Administrator', $user);
 
@@ -58,22 +59,21 @@ class LoadUsersData extends DataFixture
                 $this->faker->boolean()
             );
 
-            $user->setCreatedAt($this->faker->dateTimeThisMonth);
-
-            $manager->persist($user);
-            $this->usernames[$username] = true;
+            $userManager->persist($user);
 
             $this->setReference('Sylius.User-'.$i, $user);
             $this->setReference('Sylius.Customer-'.$i, $user->getCustomer());
         }
 
-        $customer = $this->getCustomerRepository()->createNew();
+        $customer = $this->getCustomerFactory()->createNew();
         $customer->setFirstname($this->faker->firstName);
         $customer->setLastname($this->faker->lastName);
         $customer->setEmail('customer@email.com');
-        $manager->persist($customer);
 
-        $manager->flush();
+        $customerManager = $this->getCustomerManager();
+        $customerManager->persist($customer);
+
+        $customerManager->flush();
     }
 
     /**
@@ -81,7 +81,7 @@ class LoadUsersData extends DataFixture
      */
     public function getOrder()
     {
-        return 1;
+        return 20;
     }
 
     /**
@@ -98,11 +98,13 @@ class LoadUsersData extends DataFixture
         $canonicalizer = $this->get('sylius.user.canonicalizer');
 
         /* @var $user UserInterface */
-        $user = $this->getUserRepository()->createNew();
-        $customer = $this->getCustomerRepository()->createNew();
+        $user = $this->getUserFactory()->createNew();
+        $customer = $this->getCustomerFactory()->createNew();
+
         $customer->setFirstname($this->faker->firstName);
         $customer->setLastname($this->faker->lastName);
         $customer->setCurrency($currency);
+
         $user->setCustomer($customer);
         $user->setUsername($email);
         $user->setEmail($email);

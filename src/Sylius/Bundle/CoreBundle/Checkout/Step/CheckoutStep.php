@@ -11,7 +11,7 @@
 
 namespace Sylius\Bundle\CoreBundle\Checkout\Step;
 
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Common\Persistence\ResourceManagerInterface;
 use Sylius\Bundle\FlowBundle\Process\Step\ControllerStep;
 use Sylius\Component\Addressing\Matcher\ZoneMatcherInterface;
 use Sylius\Component\Cart\Provider\CartProviderInterface;
@@ -50,7 +50,7 @@ abstract class CheckoutStep extends ControllerStep
     /**
      * Get object manager.
      *
-     * @return ObjectManager
+     * @return ResourceManagerInterface
      */
     protected function getManager()
     {

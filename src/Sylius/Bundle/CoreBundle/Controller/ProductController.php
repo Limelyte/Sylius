@@ -13,6 +13,7 @@ namespace Sylius\Bundle\CoreBundle\Controller;
 
 use Pagerfanta\Pagerfanta;
 use Sylius\Bundle\ProductBundle\Controller\ProductController as BaseProductController;
+use Sylius\Bundle\ResourceBundle\Controller\RequestConfiguration;
 use Sylius\Bundle\SearchBundle\Query\TaxonQuery;
 use Sylius\Component\Core\Model\ProductInterface;
 use Sylius\Component\Core\Model\TaxonInterface;
@@ -46,8 +47,7 @@ class ProductController extends BaseProductController
         if ($request->attributes->has('_sylius_entity')) {
             $taxon = $request->attributes->get('_sylius_entity');
         } else {
-            $taxon = $this->get('sylius.repository.taxon')
-                ->findOneByPermalink($permalink);
+            $taxon = $this->container->get('sylius.repository.taxon')->findOneByPermalink($permalink);
 
             if (!isset($taxon)) {
                 throw new NotFoundHttpException('Requested taxon does not exist.');
@@ -65,7 +65,7 @@ class ProductController extends BaseProductController
          *      indexes:
          *          my_own_index:
          */
-        $finder = $this->get('sylius_search.finder')
+        $finder = $this->container->get('sylius_search.finder')
             ->setFacetGroup('categories_set')
             ->find(new TaxonQuery($taxon, $request->query->get('filters', array())));
 
@@ -131,15 +131,15 @@ class ProductController extends BaseProductController
         if (!$product->getChannels()->contains($channel)) {
             throw new NotFoundHttpException(sprintf(
                 'Requested %s does not exist for channel: %s.',
-                $this->config->getResourceName(),
+                $this->configuration->getResourceName(),
                 $channel->getName()
             ));
         }
 
         $view = $this
             ->view()
-            ->setTemplate($this->config->getTemplate('show.html'))
-            ->setTemplateVar($this->config->getResourceName())
+            ->setTemplate($this->configuration->getTemplate('show.html'))
+            ->setTemplateVar($this->configuration->getResourceName())
             ->setData($product)
         ;
 
@@ -181,7 +181,7 @@ class ProductController extends BaseProductController
 
         $view = $this
             ->view()
-            ->setTemplate($this->config->getTemplate('history.html'))
+            ->setTemplate($this->configuration->getTemplate('history.html'))
             ->setData(array(
                 'product' => $product,
                 'logs'    => array(
@@ -236,18 +236,17 @@ class ProductController extends BaseProductController
     }
 
     /**
-     * @param Request $request
-     * @param array $criteria
-     *
-     * @return null|ProductInterface
+     * {@inheritdoc}
      */
-    public function findOr404(Request $request, array $criteria = array())
+    public function findOr404(RequestConfiguration $configuration, array $criteria = array())
     {
+        $request = $configuration->getRequest();
+
         if ($request->attributes->has('_sylius_entity')) {
             return $request->attributes->get('_sylius_entity');
         }
 
-        return parent::findOr404($request, $criteria);
+        return parent::findOr404($configuration, $criteria);
     }
 
     private function renderResults(
@@ -263,11 +262,11 @@ class ProductController extends BaseProductController
     )
     {
         $results->setCurrentPage($page, true, true);
-        $results->setMaxPerPage($this->config->getPaginationMaxPerPage());
+        $results->setMaxPerPage($this->configuration->getPaginationMaxPerPage());
 
         $view = $this
             ->view()
-            ->setTemplate($this->config->getTemplate($template))
+            ->setTemplate($this->configuration->getTemplate($template))
             ->setData(array(
                 'taxon'    => $taxon,
                 'products' => $results,

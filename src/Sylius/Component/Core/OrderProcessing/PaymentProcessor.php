@@ -13,7 +13,7 @@ namespace Sylius\Component\Core\OrderProcessing;
 
 use Sylius\Component\Core\Model\OrderInterface;
 use Sylius\Component\Core\Model\PaymentInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Sylius\Component\Resource\Repository\ResourceRepositoryInterface;
 
 /**
  * Payment processor.
@@ -25,16 +25,16 @@ class PaymentProcessor implements PaymentProcessorInterface
     /**
      * Payment repository.
      *
-     * @var RepositoryInterface
+     * @var ResourceRepositoryInterface
      */
     protected $paymentRepository;
 
     /**
      * Constructor.
      *
-     * @param RepositoryInterface $paymentRepository
+     * @param ResourceRepositoryInterface $paymentRepository
      */
-    public function __construct(RepositoryInterface $paymentRepository)
+    public function __construct(ResourceRepositoryInterface $paymentRepository)
     {
         $this->paymentRepository = $paymentRepository;
     }

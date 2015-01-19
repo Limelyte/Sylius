@@ -41,7 +41,7 @@ class AddressingContext extends DefaultContext
     {
         /* @var $country CountryInterface */
         if (null === $country = $this->getRepository('country')->findOneBy(array('name' => $name))) {
-            $country = $this->getRepository('country')->createNew();
+            $country = $this->getFactory('country')->createNew();
             $country->setName(trim($name));
             $country->setIsoName(substr($name, 0, 3));
 
@@ -52,7 +52,7 @@ class AddressingContext extends DefaultContext
                 }
             }
 
-            $manager = $this->getEntityManager();
+            $manager = $this->getManager('country');
             $manager->persist($country);
             if ($flush) {
                 $manager->flush();
@@ -83,7 +83,7 @@ class AddressingContext extends DefaultContext
             );
         }
 
-        $this->getEntityManager()->flush();
+        $this->getManager('zone')->flush();
     }
 
     /**
@@ -92,16 +92,16 @@ class AddressingContext extends DefaultContext
      */
     public function thereIsZone($name, $type = ZoneInterface::TYPE_COUNTRY, array $members = array(), $scope = null, $flush = true)
     {
-        $repository = $this->getRepository('zone');
+        $factory = $this->getFactory('zone');
 
         /* @var $zone ZoneInterface */
-        $zone = $repository->createNew();
+        $zone = $factory->createNew();
         $zone->setName($name);
         $zone->setType($type);
         $zone->setScope($scope);
 
         foreach ($members as $memberName) {
-            $member = $this->getService('sylius.repository.zone_member_'.$type)->createNew();
+            $member = $this->getService('sylius.factory.zone_member_'.$type)->createNew();
             if (ZoneInterface::TYPE_ZONE === $type) {
                 $zoneable = $repository->findOneBy(array('name' => $memberName));
             } else {
@@ -113,8 +113,9 @@ class AddressingContext extends DefaultContext
             $zone->addMember($member);
         }
 
-        $manager = $this->getEntityManager();
+        $manager = $this->getManager('zone');
         $manager->persist($zone);
+
         if ($flush) {
             $manager->flush();
         }
@@ -128,10 +129,10 @@ class AddressingContext extends DefaultContext
     public function thereIsProvince($name)
     {
         /* @var $province ProvinceInterface */
-        $province = $this->getRepository('province')->createNew();
+        $province = $this->getFactory('province')->createNew();
         $province->setName($name);
 
-        $this->getEntityManager()->persist($province);
+        $this->getManager('province')->persist($province);
 
         return $province;
     }
@@ -141,14 +142,17 @@ class AddressingContext extends DefaultContext
      */
     public function theFollowingCountryTranslationsExist(TableNode $table)
     {
-        $manager = $this->getEntityManager();
+        $manager = $this->getManager('country');
 
         foreach ($table->getHash() as $data) {
             $countryTranslation = $this->findOneByName('country_translation', $data['country']);
             $country = $countryTranslation->getTranslatable();
             $country
                 ->setCurrentLocale($data['locale'])
-                ->setName($data['name']);
+                ->setName($data['name'])
+            ;
+
+            $manager->persist($country);
         }
 
         $manager->flush();

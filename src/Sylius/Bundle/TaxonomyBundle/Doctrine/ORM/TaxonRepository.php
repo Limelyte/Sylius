@@ -25,7 +25,7 @@ class TaxonRepository extends TranslatableResourceRepository implements TaxonRep
 {
     public function getTaxonsAsList(TaxonomyInterface $taxonomy)
     {
-        return $this->getQueryBuilder()
+        return $this->objectRepository->createQueryBuilder('o')
             ->where('o.taxonomy = :taxonomy')
             ->andWhere('o.parent IS NOT NULL')
             ->setParameter('taxonomy', $taxonomy)

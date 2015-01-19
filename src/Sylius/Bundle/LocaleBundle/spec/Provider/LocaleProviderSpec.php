@@ -13,11 +13,11 @@ namespace spec\Sylius\Bundle\LocaleBundle\Provider;
 
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Sylius\Component\Resource\Repository\ResourceRepositoryInterface;
 
 class LocaleProviderSpec extends ObjectBehavior
 {
-    function let(RepositoryInterface $localeRepository)
+    function let(ResourceRepositoryInterface $localeRepository)
     {
         $this->beConstructedWith($localeRepository, 'fr_FR');
     }

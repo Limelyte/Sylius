@@ -27,6 +27,8 @@ class LoadPaymentMethodsData extends DataFixture
      */
     public function load(ObjectManager $manager)
     {
+        $manager = $this->getPaymentMethodManager();
+
         $manager->persist($this->createPaymentMethod('Dummy', 'dummy'));
         $manager->persist($this->createPaymentMethod('PaypalExpressCheckout', 'paypal_express_checkout'));
         $manager->persist($this->createPaymentMethod('Be2bill', 'be2bill_direct'));
@@ -42,7 +44,7 @@ class LoadPaymentMethodsData extends DataFixture
      */
     public function getOrder()
     {
-        return 4;
+        return 10;
     }
 
     /**
@@ -57,7 +59,7 @@ class LoadPaymentMethodsData extends DataFixture
     protected function createPaymentMethod($name, $gateway, $enabled = true)
     {
         /* @var $method PaymentMethodInterface */
-        $method = $this->getPaymentMethodRepository()->createNew();
+        $method = $this->getPaymentMethodFactory()->createNew();
         $method->setName($name);
         $method->setGateway($gateway);
         $method->setEnabled($enabled);

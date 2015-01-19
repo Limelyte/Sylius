@@ -11,167 +11,89 @@
 
 namespace Sylius\Component\Resource\Event;
 
-use Symfony\Component\EventDispatcher\GenericEvent;
+use Sylius\Component\Resource\Model\ResourceInterface;
+use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Resource event.
  *
- * @author Jérémy Leherpeur <jeremy@leherpeur.net>
+ * @param Paweł Jędrzejewski <pawel@sylius.org>
  */
-class ResourceEvent extends GenericEvent
+class ResourceEvent extends Event
 {
     const TYPE_ERROR   = 'error';
-    const TYPE_WARNING = 'warning';
     const TYPE_INFO    = 'info';
-    const TYPE_SUCCESS = 'success';
+    const TYPE_WARNING = 'warning';
 
     /**
-     * Message type
-     *
-     * @var string
+     * @var ResourceInterface
      */
-    protected $messageType = '';
+    protected $resource;
 
     /**
-     * Message
-     *
-     * @var string
-     */
-    protected $message = '';
-
-    /**
-     * Message parameters
-     *
-     * @var array
+     * @param ResourceInterface $resource
      */
     protected $messageParameters = array();
 
     /**
-     * ErrorCode
+     * Response code.
      *
      * @var integer
      */
-    protected $errorCode = 500;
+    protected $responseCode = 500;
 
     /**
-     * Stop event propagation
-     *
-     * @param string $message
+     * @param $message
      * @param string $type
-     * @param array  $parameters
+     * @param array $parameters
+     * @param int $responseCode
      */
-    public function stop($message, $type = self::TYPE_ERROR, $parameters = array(), $errorCode = 500)
+    public function stop($message, $type = self::TYPE_ERROR, $parameters = array(), $responseCode = 500)
     {
         $this->messageType = $type;
         $this->message = $message;
         $this->messageParameters = $parameters;
-        $this->errorCode = $errorCode;
+        $this->responseCode = $responseCode;
 
         $this->stopPropagation();
     }
 
     /**
-     * Alias
-     *
-     * @return bool
+     * @param ResourceInterface $resource
      */
-    public function isStopped()
+    public function __construct(ResourceInterface $resource)
     {
-        return $this->isPropagationStopped();
+        $this->resource = $resource;
     }
 
     /**
-     * Get messageType property
-     *
-     * @return string
+     * @return ResourceInterface
      */
-    public function getMessageType()
+    public function getResource()
     {
-        return $this->messageType;
+        return $this->resource;
     }
 
     /**
-     * Sets messageType property
-     *
-     * @param string $messageType Should be one of ResourceEvent's TYPE constants
-     *
-     * @return $this
-     */
-    public function setMessageType($messageType)
-    {
-        $this->messageType = $messageType;
-
-        return $this;
-    }
-
-    /**
-     * Get message property
-     *
-     * @return string
-     */
-    public function getMessage()
-    {
-        return $this->message;
-    }
-
-    /**
-     * Sets message property
-     *
-     * @param string $message
-     *
-     * @return $this
-     */
-    public function setMessage($message)
-    {
-        $this->message = $message;
-
-        return $this;
-    }
-
-    /**
-     * Get messageParameters property
-     *
-     * @return array
-     */
-    public function getMessageParameters()
-    {
-        return $this->messageParameters;
-    }
-
-    /**
-     * Sets messageParameters property
-     *
-     * @param array $messageParameters
-     *
-     * @return $this
-     */
-    public function setMessageParameters(array $messageParameters)
-    {
-        $this->messageParameters = $messageParameters;
-
-        return $this;
-    }
-
-    /**
-     * Get errorCode property
+     * Get responseCode property
      *
      * @return int
      */
-    public function getErrorCode()
+    public function getResponseCode()
     {
-        return $this->errorCode;
+        return $this->responseCode;
     }
 
     /**
-     * Sets errorCode property
+     * Sets responseCode property
      *
-     * @param int $errorCode
+     * @param int $responseCode
      *
      * @return $this
      */
-    public function setErrorCode($errorCode)
+    public function setResponseCode($responseCode)
     {
-        $this->errorCode = $errorCode;
+        $this->responseCode = $responseCode;
 
         return $this;
     }

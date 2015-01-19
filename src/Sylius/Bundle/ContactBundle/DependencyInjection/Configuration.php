@@ -40,60 +40,50 @@ class Configuration implements ConfigurationInterface
             ->end()
         ;
 
-        $this->addValidationGroupsSection($rootNode);
-        $this->addClassesSection($rootNode);
+        $this->addResourcesSection($rootNode);
 
         return $treeBuilder;
     }
 
-    /**
-     * Adds `validation_groups` section.
-     *
-     * @param ArrayNodeDefinition $node
-     */
-    private function addValidationGroupsSection(ArrayNodeDefinition $node)
-    {
-        $node
-            ->children()
-                ->arrayNode('validation_groups')
-                    ->addDefaultsIfNotSet()
-                    ->children()
-                        ->arrayNode('contact_request')
-                            ->prototype('scalar')->end()
-                            ->defaultValue(array('sylius'))
-                        ->end()
-                        ->arrayNode('contact_topic')
-                            ->prototype('scalar')->end()
-                            ->defaultValue(array('sylius'))
-                        ->end()
-                    ->end()
-                ->end()
-            ->end()
-        ;
-    }
 
     /**
-     * Adds `classes` section.
+     * Adds `resources` section.
      *
      * @param ArrayNodeDefinition $node
      */
-    private function addClassesSection(ArrayNodeDefinition $node)
+    private function addResourcesSection(ArrayNodeDefinition $node)
     {
         $node
             ->children()
-                ->arrayNode('classes')
+                ->arrayNode('resources')
                     ->addDefaultsIfNotSet()
                     ->children()
                         ->arrayNode('contact_request')
                             ->addDefaultsIfNotSet()
                             ->children()
-                                ->scalarNode('model')->defaultValue('Sylius\Component\Contact\Model\Request')->end()
-                                ->scalarNode('controller')->defaultValue('Sylius\Bundle\ResourceBundle\Controller\ResourceController')->end()
-                                ->scalarNode('repository')->end()
-                                ->arrayNode('form')
+                                ->arrayNode('classes')
                                     ->addDefaultsIfNotSet()
                                     ->children()
-                                        ->scalarNode('default')->defaultValue('Sylius\Bundle\ContactBundle\Form\Type\RequestType')->end()
+                                        ->scalarNode('model')->defaultValue('Sylius\Component\Contact\Model\Request')->end()
+                                        ->scalarNode('interface')->defaultValue('Sylius\Component\Contact\Model\RequestInterface')->end()
+                                        ->scalarNode('controller')->defaultValue('Sylius\Bundle\ResourceBundle\Controller\ResourceController')->end()
+                                        ->scalarNode('repository')->cannotBeEmpty()->end()
+                                        ->scalarNode('factory')->cannotBeEmpty()->end()
+                                        ->arrayNode('form')
+                                            ->addDefaultsIfNotSet()
+                                            ->children()
+                                                ->scalarNode('default')->defaultValue('Sylius\Bundle\ContactBundle\Form\Type\RequestType')->end()
+                                            ->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                                ->arrayNode('validation_groups')
+                                    ->addDefaultsIfNotSet()
+                                    ->children()
+                                        ->arrayNode('default')
+                                            ->prototype('scalar')->end()
+                                            ->defaultValue(array('sylius'))
+                                        ->end()
                                     ->end()
                                 ->end()
                             ->end()
@@ -101,14 +91,30 @@ class Configuration implements ConfigurationInterface
                         ->arrayNode('contact_topic')
                             ->addDefaultsIfNotSet()
                             ->children()
-                                ->scalarNode('model')->defaultValue('Sylius\Component\Contact\Model\Topic')->end()
-                                ->scalarNode('controller')->defaultValue('Sylius\Bundle\ResourceBundle\Controller\ResourceController')->end()
-                                ->scalarNode('repository')->end()
-                                ->arrayNode('form')
+                                ->arrayNode('classes')
                                     ->addDefaultsIfNotSet()
                                     ->children()
-                                        ->scalarNode('default')->defaultValue('Sylius\Bundle\ContactBundle\Form\Type\TopicType')->end()
-                                        ->scalarNode('choice')->defaultValue('Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType')->end()
+                                        ->scalarNode('model')->defaultValue('Sylius\Component\Contact\Model\Topic')->end()
+                                        ->scalarNode('interface')->defaultValue('Sylius\Component\Contact\Model\TopicInterface')->end()
+                                        ->scalarNode('controller')->defaultValue('Sylius\Bundle\ResourceBundle\Controller\ResourceController')->end()
+                                        ->scalarNode('repository')->cannotBeEmpty()->end()
+                                        ->scalarNode('factory')->cannotBeEmpty()->end()
+                                        ->arrayNode('form')
+                                            ->addDefaultsIfNotSet()
+                                            ->children()
+                                                ->scalarNode('default')->defaultValue('Sylius\Bundle\ContactBundle\Form\Type\TopicType')->end()
+                                                ->scalarNode('choice')->defaultValue('Sylius\Bundle\ResourceBundle\Form\Type\ResourceChoiceType')->end()
+                                            ->end()
+                                        ->end()
+                                    ->end()
+                                ->end()
+                                ->arrayNode('validation_groups')
+                                    ->addDefaultsIfNotSet()
+                                    ->children()
+                                        ->arrayNode('default')
+                                            ->prototype('scalar')->end()
+                                            ->defaultValue(array('sylius'))
+                                        ->end()
                                     ->end()
                                 ->end()
                             ->end()

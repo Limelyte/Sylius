@@ -14,7 +14,7 @@ namespace spec\Sylius\Component\Locale\Provider;
 use PhpSpec\ObjectBehavior;
 use Prophecy\Argument;
 use Sylius\Component\Locale\Model\LocaleInterface;
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Sylius\Component\Resource\Repository\ResourceRepositoryInterface;
 
 /**
  * @author Paweł Jędrzejewski <pawel@sylius.org>
@@ -22,7 +22,7 @@ use Sylius\Component\Resource\Repository\RepositoryInterface;
  */
 class LocaleProviderSpec extends ObjectBehavior
 {
-    function let(RepositoryInterface $repository)
+    function let(ResourceRepositoryInterface $repository)
     {
         $this->beConstructedWith($repository, 'en');
     }
@@ -37,12 +37,12 @@ class LocaleProviderSpec extends ObjectBehavior
         $this->shouldImplement('Sylius\Component\Locale\Provider\LocaleProviderInterface');
     }
 
-    function it_validates_a_null_default_locale_is_given(RepositoryInterface $repository)
+    function it_validates_a_null_default_locale_is_given(ResourceRepositoryInterface $repository)
     {
         $this->shouldThrow('Exception')->during('__construct', array($repository, null));
     }
 
-    function it_validates_an_empty_default_locale_is_given(RepositoryInterface $repository)
+    function it_validates_an_empty_default_locale_is_given(ResourceRepositoryInterface $repository)
     {
         $this->shouldThrow('Exception')->during('__construct', array($repository, ''));
     }
@@ -52,7 +52,7 @@ class LocaleProviderSpec extends ObjectBehavior
         $this->getRequiredLocales()->shouldReturn(array('en'));
     }
 
-    function it_returns_all_enabled_locales(LocaleInterface $locale, RepositoryInterface $repository)
+    function it_returns_all_enabled_locales(LocaleInterface $locale, ResourceRepositoryInterface $repository)
     {
         $repository->findBy(array('enabled' => true))->shouldBeCalled()->willReturn(array($locale));
 
@@ -60,7 +60,7 @@ class LocaleProviderSpec extends ObjectBehavior
     }
 
     function it_returns_correct_locales(
-        RepositoryInterface $repository,
+        ResourceRepositoryInterface $repository,
         LocaleInterface $locale1,
         LocaleInterface $locale2
     )
@@ -80,7 +80,7 @@ class LocaleProviderSpec extends ObjectBehavior
     }
 
     function it_checks_if_the_locale_is_available(
-        RepositoryInterface $repository,
+        ResourceRepositoryInterface $repository,
         LocaleInterface $locale
     ) {
         $repository->findBy(Argument::any())->willReturn(array($locale));

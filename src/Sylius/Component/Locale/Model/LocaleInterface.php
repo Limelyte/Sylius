@@ -11,6 +11,7 @@
 
 namespace Sylius\Component\Locale\Model;
 
+use Sylius\Component\Resource\Model\ResourceInterface;
 use Sylius\Component\Resource\Model\TimestampableInterface;
 
 /**
@@ -18,7 +19,7 @@ use Sylius\Component\Resource\Model\TimestampableInterface;
  *
  * @author Paweł Jędrzejewski <pawel@sylius.org>
  */
-interface LocaleInterface extends TimestampableInterface
+interface LocaleInterface extends ResourceInterface, TimestampableInterface
 {
     /**
      * Get locale code.

@@ -12,6 +12,7 @@
 namespace Sylius\Bundle\TranslationBundle\Doctrine\ORM;
 
 use Sylius\Bundle\ResourceBundle\Doctrine\ORM\EntityRepository;
+use Sylius\Bundle\ResourceBundle\Doctrine\ORM\ResourceRepository;
 use Sylius\Component\Translation\Model\TranslatableInterface;
 use Sylius\Component\Translation\Provider\LocaleProviderInterface;
 use Sylius\Component\Translation\Repository\TranslatableResourceRepositoryInterface;
@@ -21,7 +22,7 @@ use Sylius\Component\Translation\Repository\TranslatableResourceRepositoryInterf
  *
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
-class TranslatableResourceRepository extends EntityRepository implements TranslatableResourceRepositoryInterface
+class TranslatableResourceRepository extends ResourceRepository implements TranslatableResourceRepositoryInterface
 {
     /**
      * @var LocaleProviderInterface
@@ -32,53 +33,6 @@ class TranslatableResourceRepository extends EntityRepository implements Transla
      * @var array
      */
     protected $translatableFields = array();
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getQueryBuilder()
-    {
-        $queryBuilder = parent::getQueryBuilder();
-
-        $queryBuilder
-            ->addSelect('translation')
-            ->leftJoin($this->getAlias().'.translations', 'translation')
-        ;
-
-        return $queryBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    protected function getCollectionQueryBuilder()
-    {
-        $queryBuilder = parent::getCollectionQueryBuilder();
-
-        $queryBuilder
-            ->addSelect('translation')
-            ->leftJoin($this->getAlias().'.translations', 'translation')
-        ;
-
-        return $queryBuilder;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function createNew()
-    {
-        $resource = parent::createNew();
-
-        if (!$resource instanceof TranslatableInterface) {
-            throw new \InvalidArgumentException('Resource must implement TranslatableInterface.');
-        }
-
-        $resource->setCurrentLocale($this->localeProvider->getCurrentLocale());
-        $resource->setFallbackLocale($this->localeProvider->getFallbackLocale());
-
-        return $resource;
-    }
 
     /**
      * {@inheritdoc}

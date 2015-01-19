@@ -11,7 +11,7 @@
 
 namespace Sylius\Component\Locale\Provider;
 
-use Sylius\Component\Resource\Repository\RepositoryInterface;
+use Sylius\Component\Resource\Repository\ResourceRepositoryInterface;
 use Sylius\Component\Locale\Model\LocaleInterface;
 
 /**
@@ -25,7 +25,7 @@ class LocaleProvider implements LocaleProviderInterface
     /**
      * Repository for locale model.
      *
-     * @var RepositoryInterface
+     * @var ResourceRepositoryInterface
      */
     protected $localeRepository;
 
@@ -37,12 +37,12 @@ class LocaleProvider implements LocaleProviderInterface
     protected $defaultLocale;
 
     /**
-     * @param RepositoryInterface $localeRepository
+     * @param ResourceRepositoryInterface $localeRepository
      * @param string              $defaultLocale
      *
      * @throws \Exception
      */
-    public function __construct(RepositoryInterface $localeRepository, $defaultLocale)
+    public function __construct(ResourceRepositoryInterface $localeRepository, $defaultLocale)
     {
         if (empty($defaultLocale)) {
             throw new \InvalidArgumentException('Default locale is required!');

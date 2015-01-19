@@ -12,6 +12,7 @@
 namespace Sylius\Component\Addressing\Model;
 
 use Doctrine\Common\Collections\Collection;
+use Sylius\Component\Resource\Model\ResourceInterface;
 
 /**
  * Country interface.
@@ -19,7 +20,7 @@ use Doctrine\Common\Collections\Collection;
  * @author Paweł Jędrzejewski <pjedrzejewski@sylius.pl>
  * @author Gonzalo Vilaseca <gvilaseca@reiss.co.uk>
  */
-interface CountryInterface extends CountryTranslationInterface
+interface CountryInterface extends ResourceInterface, CountryTranslationInterface
 {
     public function getId();
 

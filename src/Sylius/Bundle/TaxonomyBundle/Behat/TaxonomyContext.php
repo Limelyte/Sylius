@@ -26,7 +26,7 @@ class TaxonomyContext extends DefaultContext
             $this->thereIsTaxonomy($data['name'], false);
         }
 
-        $this->getEntityManager()->flush();
+        $this->getManager('taxonomy')->flush();
     }
 
     /**
@@ -34,12 +34,13 @@ class TaxonomyContext extends DefaultContext
      */
     public function thereIsTaxonomy($name, $flush = true)
     {
-        $taxonomy = $this->getRepository('taxonomy')->createNew();
+        $taxonomy = $this->getFactory('taxonomy')->createNew();
         $taxonomy->setName($name);
 
-        $this->getEntityManager()->persist($taxonomy);
+        $this->getManager('taxonomy')->persist($taxonomy);
+
         if ($flush) {
-            $this->getEntityManager()->flush();
+            $this->getManager('taxonomy')->flush();
         }
     }
 
@@ -49,7 +50,7 @@ class TaxonomyContext extends DefaultContext
     public function taxonomyHasFollowingTaxons($taxonomyName, TableNode $taxonsTable)
     {
         $taxonomy = $this->findOneByName('taxonomy', $taxonomyName);
-        $manager = $this->getEntityManager();
+        $manager = $this->getManager('taxonomy');
 
         $taxons = array();
 
@@ -89,14 +90,17 @@ class TaxonomyContext extends DefaultContext
      */
     public function theFollowingTaxonomyTranslationsExist(TableNode $table)
     {
-        $manager = $this->getEntityManager();
+        $manager = $this->getManager('taxonomy');
 
         foreach ($table->getHash() as $data) {
             $taxonomyTranslation = $this->findOneByName('taxonomy_translation', $data['taxonomy']);
             $taxonomy = $taxonomyTranslation->getTranslatable();
             $taxonomy
                 ->setCurrentLocale($data['locale'])
-                ->setName($data['name']);
+                ->setName($data['name'])
+            ;
+
+            $manager->persist($taxonomy);
         }
 
         $manager->flush();
@@ -107,12 +111,17 @@ class TaxonomyContext extends DefaultContext
      */
     public function theFollowingTaxonTranslationsExist(TableNode $table)
     {
+        $manager = $this->getManager('taxon');
+
         foreach ($table->getHash() as $data) {
             $taxonTranslation = $this->findOneByName('taxon_translation', $data['taxon']);
             $taxon = $taxonTranslation->getTranslatable();
             $taxon
                 ->setCurrentLocale($data['locale'])
-                ->setName($data['name']);
+                ->setName($data['name'])
+            ;
+
+            $manager->persist($taxon);
         }
 
         $this->getEntityManager()->flush();

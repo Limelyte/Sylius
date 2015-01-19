@@ -12,9 +12,9 @@
 namespace Sylius\Bundle\AddressingBundle\DependencyInjection;
 
 use Sylius\Bundle\ResourceBundle\DependencyInjection\Extension\AbstractResourceExtension;
+use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Reference;
-use Symfony\Component\DependencyInjection\Parameter;
+use Symfony\Component\DependencyInjection\Loader\XmlFileLoader;
 
 /**
  * Addressing extension.
@@ -29,37 +29,19 @@ class SyliusAddressingExtension extends AbstractResourceExtension
      */
     public function load(array $config, ContainerBuilder $container)
     {
-        $config = $this->configure(
-            $config,
-            new Configuration(),
-            $container,
-            self::CONFIGURE_LOADER | self::CONFIGURE_DATABASE | self::CONFIGURE_PARAMETERS | self::CONFIGURE_VALIDATORS | self::CONFIGURE_FORMS | self::CONFIGURE_TRANSLATIONS
+        $config = $this->processConfiguration(new Configuration(), $config);
+        $loader = new XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+
+        $this->registerResources('sylius', $config['driver'], $config['resources'], $container);
+
+        $configFiles = array(
+            'services.xml',
         );
 
+        foreach ($configFiles as $configFile) {
+            $loader->load($configFile);
+        }
+
         $container->setParameter('sylius.scope.zone', $config['scopes']);
-
-        $container
-            ->getDefinition('sylius.form.type.province_choice')
-            ->setArguments(array(
-                new Reference('sylius.repository.province')
-            ))
-        ;
-
-        $container
-            ->getDefinition('sylius.form.type.province_choice')
-            ->setArguments(array(
-                new Reference('sylius.repository.province')
-            ))
-        ;
-
-        $container
-            ->getDefinition('sylius.form.type.address')
-            ->addArgument(new Reference('sylius.form.listener.address'))
-        ;
-
-        $container
-            ->getDefinition('sylius.form.type.zone')
-            ->addArgument(new Parameter('sylius.scope.zone'))
-        ;
     }
 }
